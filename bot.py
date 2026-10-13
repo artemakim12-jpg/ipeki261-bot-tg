@@ -24,7 +24,7 @@ BASE_URL = "https://www.pilot-ipek.ru"
 API_URL = f"{BASE_URL}/api/get_list"
 CHECK_INTERVAL = 3600
 DAYS_AHEAD = 7
-CACHE_FILE = "/app/data/schedule_cache_v2.json"
+CACHE_FILE = "/app/data/schedule_cache_i261.json"
 
 MONTHS_RU = {1: "января", 2: "февраля", 3: "марта", 4: "апреля", 5: "мая", 6: "июня", 7: "июля", 8: "августа", 9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"}
 MONTHS_NOM_RU = {1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель", 5: "Май", 6: "Июнь", 7: "Июль", 8: "Август", 9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"}
