@@ -414,31 +414,34 @@ def format_table_from_lessons(title_key, lessons):
 
 def diff_snapshots(old, new):
     changes = []
+    only_new = True
     for key in sorted(new.keys(), key=lambda k: parse_date_key(k) or datetime.min):
         old_l = old.get(key, [])
         new_l = new.get(key, [])
 
-        
         old_s = set(lesson_to_str(x) for x in old_l)
         new_s = set(lesson_to_str(x) for x in new_l)
 
         if old_s == new_s:
             continue
 
-        
         if not old_l and new_l:
-            changes.append("📢 Появилось новое расписание!")
-            changes.append("")
+            if only_new and len(changes) == 0:
+                changes.append("📢 Появилось новое расписание!")
+                changes.append("")
+            else:
+                changes.append("📢 " + key + " — новое расписание")
+                changes.append("")
             changes.append(format_table_from_lessons(key, new_l))
             changes.append("")
             continue
 
-        
+        only_new = False
         changes.append("📢 Изменения на " + key + ":")
         changes.append("")
         changes.append(format_table_from_lessons(key, new_l))
         changes.append("")
-    return changes
+    return changes, only_new
 
 
 def check_schedule_changes():
@@ -450,19 +453,24 @@ def check_schedule_changes():
         save_cache()
         logger.info("Первый слепок сохранён: " + str(len(new_snap)) + " дней.")
         return
-    changes = diff_snapshots(schedule_snapshot, new_snap)
+    changes, only_new = diff_snapshots(schedule_snapshot, new_snap)
     schedule_snapshot = new_snap
     save_cache()
     if not changes:
         logger.info("Изменений нет.")
         return
     logger.info("Найдено изменений: " + str(len(changes)) + " строк. Отправляем...")
-    msg = format_change_message(changes)
+    if only_new:
+        msg = "\n".join(changes)
+    else:
+        msg = format_change_message(changes)
+    if len(msg) > 4000:
+        msg = msg[:4000] + "\n… (обрезано)"
     try:
         asyncio.run_coroutine_threadsafe(bot.send_message(ADMIN_CHAT_ID, msg, disable_web_page_preview=True), loop)
-        logger.info("Уведомление об изменениях отправлено.")
+        logger.info("Уведомление отправлено.")
     except Exception as e:
-        logger.error(f"Ошибка отправки: {e}")
+        logger.error("Ошибка отправки: " + str(e))
 
 
 def format_single_table(title, lessons):
