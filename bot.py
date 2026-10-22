@@ -22,7 +22,7 @@ TARGET_COURSE = "1 курс"
 CLOUD_URL = "https://cloud.pilot-ipek.ru/s/7HDT8FZGBd7J5cs"
 BASE_URL = "https://www.pilot-ipek.ru"
 API_URL = f"{BASE_URL}/api/get_list"
-CHECK_INTERVAL = 3600
+CHECK_INTERVAL = 10800
 DAYS_AHEAD = 7
 CACHE_FILE = "/app/data/schedule_cache_i261.json"
 
