@@ -687,14 +687,17 @@ async def today_cb(callback: CallbackQuery):
 
 @dp.callback_query(lambda c: c.data == "quick:tomorrow")
 async def tomorrow_cb(callback: CallbackQuery):
+    await callback.answer()
     target = datetime.now() + timedelta(days=1)
+    logger.info("Запрос на завтра: " + target.strftime("%d.%m.%Y"))
+    _, url = find_link_for_date(target)
+    logger.info("Найдена ссылка: " + str(url))
     tables = await asyncio.to_thread(parse_schedule_for_date, target)
+    logger.info("Найдено таблиц: " + str(len(tables)))
     if not tables:
         await callback.message.answer("📭 На завтра нет расписания.", reply_markup=get_main_keyboard())
-        await callback.answer()
         return
     await callback.message.answer(format_multiple_tables(tables), reply_markup=get_main_keyboard())
-    await callback.answer()
 
 
 @dp.callback_query(lambda c: c.data == "distance")
