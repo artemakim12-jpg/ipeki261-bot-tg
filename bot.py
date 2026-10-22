@@ -706,17 +706,32 @@ async def distance_cb(callback: CallbackQuery):
     await callback.answer()
 
 
+def should_run_check():
+    from zoneinfo import ZoneInfo
+    now = datetime.now(ZoneInfo("Europe/Moscow"))
+    target_hours = [9, 12, 15, 18]
+    if now.hour not in target_hours:
+        return False
+    if now.minute >= 5:
+        return False
+    return True
+
 async def scheduler_loop():
     while True:
-        try:
-            await asyncio.to_thread(check_schedule_changes)
-        except Exception as e:
-            logger.error("Ошибка проверки расписания: " + str(e))
-        try:
-            await asyncio.to_thread(check_cloud_and_notify)
-        except Exception as e:
-            logger.error("Ошибка проверки облака: " + str(e))
-        await asyncio.sleep(CHECK_INTERVAL)
+        if should_run_check():
+            logger.info("Наступило время проверки: " + datetime.now().strftime("%H:%M"))
+            try:
+                await asyncio.to_thread(check_schedule_changes)
+            except Exception as e:
+                logger.error("Ошибка проверки расписания: " + str(e))
+            try:
+                await asyncio.to_thread(check_cloud_and_notify)
+            except Exception as e:
+                logger.error("Ошибка проверки облака: " + str(e))
+            await asyncio.sleep(60 * 5)
+        else:
+            await asyncio.sleep(30)
+
 
 
 async def main():
