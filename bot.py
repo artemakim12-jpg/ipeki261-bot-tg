@@ -300,11 +300,20 @@ def parse_schedule_for_date(target):
     _, url = find_link_for_date(target)
     if not url:
         return []
+    
     tables = parse_all_tables_from_url(url)
+    if not tables:
+        return []
+        
     day = target.day
     mn = MONTHS_RU[target.month]
-    pat = re.compile(r"\b0?" + str(day) + r"\s+" + mn + r"\s+\d{4}\b", re.IGNORECASE)
-    return [t for t in tables if pat.search(t["title"])]
+    
+    flex = r"[\s\u00A0\u2009\u202F]+"
+    pat = re.compile(r"\b0?" + str(day) + flex + mn + flex + r"\d{4}\b", re.IGNORECASE)
+    
+    matched = [t for t in tables if pat.search(t["title"])]
+    
+    return matched if matched else tables
 
 
 def parse_schedule_for_date_text(dt_text):
